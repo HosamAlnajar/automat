@@ -4,13 +4,13 @@ namespace Automat
 {
 	public class Cash
     {
-        String Type { get; set; }
-        int Count { get; set; }
+        public int type;
+        public int count;
 
-        public Cash(string type, int count)
+        public Cash(int type, int count)
         {
-            this.Type = type;
-            this.Count = count;
+            this.type = type;
+            this.count = count;
         }  
 
     }

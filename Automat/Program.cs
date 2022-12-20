@@ -1,4 +1,5 @@
-﻿using Automat.Products;
+﻿using System.Diagnostics;
+using Automat.Products;
 
 namespace Automat;
 class Program
@@ -9,9 +10,10 @@ class Program
 
         // Användaren har 10st av varje valör
         List<Cash> wallet = new List<Cash>();
-        wallet.Add(new Cash("1", 10));
-        wallet.Add(new Cash("5", 10));
-        wallet.Add(new Cash("10", 10));
+
+        wallet.Add(new Cash(1, 10));
+        wallet.Add(new Cash(5, 10));
+        wallet.Add(new Cash(10, 10));
         
         Console.WriteLine("Hej och välkommen!");
         initialOptions();
@@ -23,12 +25,8 @@ class Program
             Console.WriteLine("2- Kolla dina pengar.");
             Console.WriteLine("3- Avbryt.");
 
-          
-            //foreach (Cash coin in wallet)
-            //{
-            //    Console.WriteLine(coin);
-            //}
             
+
 
             int option = 0;
             try
@@ -49,7 +47,7 @@ class Program
                     moneyOptions();
                     break;
                 case 3:
-                    Console.WriteLine("-----------------------------------");
+                    Console.Clear();
                     Console.WriteLine("Tack för att du använder våra produkter. Du är alltid välkommen.");
                     Console.WriteLine("Du får tillbaka: " + getBalanceToReturn());
                     break;
@@ -65,15 +63,18 @@ class Program
         {
             if(balance.userBalance < 5 && balance.userBalance > 1)
             {
+                wallet.Add(new Cash(5, 1));
                 return 5;
             }
 
             else if (balance.userBalance < 10)
             {
+                wallet.Add(new Cash(10, 1));
                 return 10;
             }
             else if (balance.userBalance > 10)
             {
+                wallet.Add(new Cash(20, 1));
                 return 20;
             }
             return balance.userBalance;
@@ -81,6 +82,7 @@ class Program
 
         void moneyOptions()
         {
+            Console.Clear();
             Console.WriteLine("Din saldo är: " + balance.userBalance + "kr");
             Console.WriteLine("1- Lägg in mer pengar.");
             Console.WriteLine("2- <= Gå tillbaka.");
@@ -110,6 +112,7 @@ class Program
             Bag bag = new Bag("Axelremsväska", 30, "Fluffig väska med axelrem fuskpäls hjärtan rymlig med dragkedja Pink Pink");
             Candy candy = new Candy("Godisnudlar", 20, "En revolutionerande produkt som ser ut som nudlar men smakar godis!");
             Cola cola = new Cola("Cola", 6, "Köp hem enskilda burkar och flaskor eller slå till på ett storpack.");
+            Console.Clear();
             Console.WriteLine("1- " + bag.name);
             Console.WriteLine("2- " + candy.name);
             Console.WriteLine("3- " + cola.name);
@@ -146,7 +149,7 @@ class Program
                     {
                         case 1:
                             checkBalance(bag.price);
-                            bag.Buy(bag.price);
+                            bag.Buy(bag.price, balance);
                             bag.Use();
                             initialOptions();
                             break;
@@ -174,8 +177,8 @@ class Program
                     {
                         case 1:
                             checkBalance(candy.price);
-                            bag.Buy(candy.price);
-                            bag.Use();
+                            candy.Buy(candy.price, balance);
+                            candy.Use();
                             initialOptions();
                             break;
                         case 2:
@@ -202,8 +205,8 @@ class Program
                     {
                         case 1:
                             checkBalance(cola.price);
-                            bag.Buy(cola.price);
-                            bag.Use();
+                            cola.Buy(cola.price, balance);
+                            cola.Use();
                             initialOptions();
                             break;
                         case 2:
@@ -230,7 +233,7 @@ class Program
             {
                 return true;
             }
-
+            Console.Clear();
             Console.WriteLine("Du har inte tillräckligt med pengar. Din saldo är: " + balance.userBalance + "kr, men produkten kostar: " + price + "kr. Vill du lägga in mer pengar?");
             Console.WriteLine("1- Ja");
             Console.WriteLine("2- Avbryt");
@@ -259,6 +262,7 @@ class Program
 
         void singleProduct(string name, int price, string description)
         {
+            Console.Clear();
             Console.WriteLine("########### Produktbeskrivning ##############");
             Console.WriteLine("Namn: " + name);
             Console.WriteLine("Pris: " + price);
@@ -268,6 +272,7 @@ class Program
 
         void defaultCatch(bool initial = false)
         {
+            Console.Clear();
             Console.WriteLine("Du han angett fel val, försök igen.");
             Console.WriteLine("-----------------------------------");
             if(initial)
@@ -282,6 +287,8 @@ class Program
 
         void charge()
         {
+            getCach();
+            Console.WriteLine("-----------------------------------");
             Console.WriteLine("Vad vill du använda för kontanter?");
             Console.WriteLine("1- En krona.");
             Console.WriteLine("2- 5 kronor.");
@@ -301,16 +308,19 @@ class Program
             switch (option)
             {
                 case 1:
+                    checkCach(1);
                     balance.userBalance += 1;
                     Console.WriteLine("Du har matat in i automaten " + balance.userBalance + "kr");
                     charge();
                     break;
                 case 2:
+                    checkCach(5);
                     balance.userBalance += 5;
                     Console.WriteLine("Du har matat in i automaten " + balance.userBalance + "kr");
                     charge();
                     break;
                 case 3:
+                    checkCach(10);
                     balance.userBalance += 10;
                     Console.WriteLine("Du har matat in i automaten " + balance.userBalance + "kr");
                     charge();
@@ -321,6 +331,56 @@ class Program
                 default:
                     defaultCatch(true);
                     break;
+            }
+        }
+
+        void checkCach(int type)
+        {
+            foreach (Cash cach in wallet)
+            {
+                if(cach.type == type)
+                {
+                    if (cach.count > 0)
+                    {
+                        cach.count--;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Du har 0st av " + cach.type + "kr");
+                        Console.WriteLine("Vill du lägga in en annan typ av kontanter?");
+                        Console.WriteLine("1- Ja");
+                        Console.WriteLine("2- Avbryt");
+                        int option = 0;
+                        try
+                        {
+                            option = int.Parse(Console.ReadLine());
+                        }
+                        catch
+                        {
+                            defaultCatch(true);
+                        }
+                        switch (option)
+                        {
+                            case 1:
+                                Console.Clear();
+                                charge();
+                                break;
+                            case 2:
+                                defaultCatch(true);
+                                break;
+
+                        }
+                    }
+                }
+            }
+        }
+
+        void getCach()
+        {
+            Console.WriteLine("Dina kontanter är:");
+            foreach (Cash cach in wallet)
+            {
+                Console.WriteLine(cach.count + "st av " + cach.type + "kr");
             }
         }
     }

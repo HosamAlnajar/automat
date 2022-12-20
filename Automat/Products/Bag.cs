@@ -10,9 +10,10 @@ namespace Automat.Products
             this.description = Description;
         }
 
-        public void Buy(int price)
+        public void Buy(int price, Balance balance)
         {
             // minska pengarna i balance
+            balance.userBalance = balance.userBalance - price;
             Console.WriteLine("************** Tack! ******************");
             Console.WriteLine("Tack för ditt köp!");
         }
